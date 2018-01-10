@@ -4,23 +4,23 @@ set -e
 
 DISTRO_NAME="budgie funtoo-test gentoo ubuntu"
 
-budgie {
+budgie () {
 	BTRFS_SUB_ROOT="@"
 	ROOT_PART="/dev/sda5"
 	BOOT_PART="/dev/sda7"
 }
 
-funtoo-test {
+funtoo-test () {
 	ROOT_PART_LABEL="Funtoo-Root"
 	BOOT_PART_LABEL="Funtoo-Boot"
 }
 
-gentoo {
+gentoo () {
 	ROOT_PART_LABEL="Gentoo-Root"
 	BOOT_PART_LABEL="Gentoo-Boot"
 }
 
-ubuntu {
+ubuntu () {
 	BTRFS_SUB_ROOT="@"
 	ROOT_PART="/dev/sda12"
 	BOOT_PART="/dev/sda11"

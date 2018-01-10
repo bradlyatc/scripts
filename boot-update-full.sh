@@ -1,88 +1,82 @@
 #!/bin/bash
 
 set -e
-clear
-echo -e "***BOOT-UPDATE***\n"
 
-## Budgie
-BUDGIEMOUNT=/mnt/budgie
-echo -e "Mounting Ubuntu Budgie @: ${BUDGIEMOUNT}"
-# check if partitions are mounted if not mount physical partitions
-if [[ $(findmnt -M ${BUDGIEMOUNT}) && $(findmnt -M ${BUDGIEMOUNT}/boot) ]]; then
-	echo -e "${BUDGIEMOUNT} already mounted...skipping"
-else
-	[[ $(findmnt -M ${BUDGIEMOUNT}) ]] || \
-		{ mount -o subvol=@ /dev/sda5 $BUDGIEMOUNT; \
-		echo -e "mounting ${BUDGIEMOUNT} ROOT"; \
-		 NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${BUDGIEMOUNT}"; }
-	[[ $(findmnt -M ${BUDGIEMOUNT}/boot) ]] || \
-		{ mount /dev/sda7 ${BUDGIEMOUNT}/boot; \
-		echo -e "mounting ${BUDGIEMOUNT} BOOT \n"; \
-		NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${BUDGIEMOUNT}/boot"; }
-fi
+DISTRO_NAME="budgie funtoo-test gentoo ubuntu"
+ROOT_MOUNT_DIR="/mnt/"
 
-## Funtoo Test
-FUNTOOTESTMOUNT="/mnt/funtoo-test"
-echo -e "Mounting Funtoo Test @: ${FUNTOOTESTMOUNT}"
-# define partitions to mount
-FUNTOO_ROOT_PART="LABEL=Funtoo-Root"
-FUNTOO_BOOT_PART="LABEL=Funtoo-Boot"
-# mount physical filesystem
-if [[ $(findmnt -M ${FUNTOOTESTMOUNT}) && $(findmnt -M ${FUNTOOTESTMOUNT}/boot) ]]; then
-	echo -e "${FUNTOOTESTMOUNT} already mounted...skipping"
-else
-	[[ $(findmnt -M ${FUNTOOTESTMOUNT}) ]] || \
-		{ mount ${FUNTOO_ROOT_PART} ${FUNTOOTESTMOUNT}; \
-		echo -e "mounting ${FUNTOOTESTMOUNT} ROOT"; \
-		NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${FUNTOOTESTMOUNT}"; }
-	[[ $(findmnt -M ${FUNTOOTESTMOUNT}/boot) ]] || \
-		{ mount ${FUNTOO_BOOT_PART} ${FUNTOOTESTMOUNT}/boot; \
-		echo -e "mounting ${FUNTOOTESTMOUNT} BOOT \n"; \
-		NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${FUNTOOTESTMOUNT}/boot"; }
-fi
+budgie() {
+	SUBVOL_ROOT="@"
+	ROOT_PART="/dev/sda5"
+	BOOT_PART="/dev/sda7"
+}
 
-## Gentoo
-GENTOOMOUNT="/mnt/gentoo"
-echo -e "Mounting Gentoo @: ${GENTOOMOUNT}"
-# define partitions to mount
-GENTOO_ROOT_PART="LABEL=Gentoo-Root"
-GENTOO_BOOT_PART="LABEL=Gentoo-Boot"
-# mount physical filesystem
-if [[ $(findmnt -M "${GENTOOMOUNT}") && $(findmnt -M "${GENTOOMOUNT}/boot") ]];then
-	echo -e "${GENTOOMOUNT} already mounted...skipping"
-else
-	[[ $(findmnt -M "${GENTOOMOUNT}") ]] || \
-		{ mount ${GENTOO_ROOT_PART} ${GENTOOMOUNT}; \
-		NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${GENTOOMOUNT}"; \
-		echo -e "mounting ${GENTOOMOUNT} ROOT"; }
-	[[ $(findmnt -M "${GENTOOMOUNT}/boot") ]] || \
-		{ mount ${GENTOO_BOOT_PART} ${GENTOOMOUNT}/boot; \
-		NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${GENTOOMOUNT}/boot"; \
-		echo -e "mounting ${GENTOOMOUNT} BOOT \n"; }
-fi
+funtoo-test() {
+	ROOT_LABEL="Funtoo-Root"
+	BOOT_LABEL="Funtoo-Boot"
+}
 
-## Ubuntu
-UBUNTUMOUNT=/mnt/ubuntu
-echo -e "Mounting Ubuntu @: ${UBUNTUMOUNT}"
-# mount physical filesystem
-if [[ $(findmnt -M ${UBUNTUMOUNT}) && $(findmnt -M ${UBUNTUMOUNT}/boot) ]]; then
-	echo -e "${UBUNTUMOUNT} already mounted...skipping"
-else
-	[[ $(findmnt -M ${UBUNTUMOUNT}) ]] || \
-		{ mount -o subvol=@ /dev/sda12 ${UBUNTUMOUNT}; \
-		echo -e "mounting ${UBUNTUMOUNT} ROOT"; \
-		NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${UBUNTUMOUNT}"; }
-	[[ $(findmnt -M ${UBUNTUMOUNT}/boot) ]] || \
-		{ mount /dev/sda11 ${UBUNTUMOUNT}/boot; \
-		echo -e "mounting ${UBUNTUMOUNT} BOOT \n"; \
-		NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${UBUNTUMOUNT}/boot"; }
-fi
+gentoo() {
+	ROOT_LABEL="Gentoo-Root"
+	BOOT_LABEL="Gentoo-Boot"
+}
 
-## call boot-update to configure /boot/grub/grub.cfg
+ubuntu() {
+	SUBVOL_ROOT="@"
+	ROOT_PART="/dev/sda12"
+	BOOT_PART="/dev/sda11"
+}
+
+check_mount_options() {
+	if [[ -n "${SUBVOL_ROOT}" ]]; then
+		SUBVOL_ROOT="-o subvol=${SUBVOL_ROOT} "
+	fi
+	if [[ -n "${SUBVOL_BOOT}" ]]; then
+		SUBVOL_BOOT="-o subvol=${SUBVOL_BOOT} "
+	fi
+	if [[ -n "${ROOT_LABEL}" ]]; then
+		ROOT_LABEL="LABEL=${ROOT_LABEL}"
+	fi
+	if [[ -n "${BOOT_LABEL}" ]]; then
+		BOOT_LABEL="LABEL=${BOOT_LABEL}"
+	fi
+}
+
+unset_mount_vars() {
+	for i in "ROOT_PART BOOT_PART ROOT_LABEL BOOT_LABEL SUBVOL_ROOT SUBVOL_BOOT"; do
+		unset $i
+	done
+}
+
+chroot_mount() {
+	if [[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") && $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]]; then
+		echo -e "${DISTRO} ROOT and BOOT already mounted...skipping"
+	else
+		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") ]] || \
+			{ mount ${SUBVOL_ROOT}${ROOT_LABEL}${ROOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}; \
+			echo -e "Mounting ${DISTRO} ROOT"; \
+			NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}"; }
+		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]] || \
+			{ mount ${SUBVOL_BOOT}${BOOT_LABEL}${BOOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}/boot; \
+			echo -e "Mounting ${DISTRO} BOOT \n"; \
+			NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}/boot"; }
+	fi
+}
+
+chroot_unmount() {
+	for MOUNTED in ${NEW_BOOT_MOUNTS} ${NEW_ROOT_MOUNTS};do
+		[[ $(findmnt -M ${MOUNTED}) ]] && umount -lR ${MOUNTED} && echo -e "Unmounting: ${MOUNTED}"
+	done
+}
+
+for DISTRO in ${DISTRO_NAME}; do
+	$DISTRO;
+	check_mount_options
+	chroot_mount
+	unset_mount_vars
+done
+
 boot-update
 
-## unmount only automounted directories
 echo -e "Unmounting only automounted directories: \n"
-for MOUNTED in ${NEW_BOOT_MOUNTS} ${NEW_ROOT_MOUNTS};do
-	[[ $(findmnt -M ${MOUNTED}) ]] && umount -lR ${MOUNTED} && echo -e "Unmounting: ${MOUNTED}"
-done
+chroot_unmount
