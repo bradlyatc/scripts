@@ -18,7 +18,7 @@ else
 	[[ $(findmnt -M ${BUDGIEMOUNT}/boot) ]] || \
 		{ mount /dev/sda7 ${BUDGIEMOUNT}/boot; \
 		echo -e "mounting ${BUDGIEMOUNT} BOOT \n"; \
-		NEW_BOOT_MOUNTS="${NEW__BOOT_MOUNTS} ${BUDGIEMOUNT}/boot"; }
+		NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${BUDGIEMOUNT}/boot"; }
 fi
 
 ## Funtoo Test
