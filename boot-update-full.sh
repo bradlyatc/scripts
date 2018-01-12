@@ -6,7 +6,7 @@ DISTRO_NAME="budgie funtoo-test gentoo ubuntu"
 ROOT_MOUNT_DIR="/mnt/"
 
 budgie() {
-	SUBVOL_ROOT="@"
+	ROOT_SUBVOL="@"
 	ROOT_PART="/dev/sda5"
 	BOOT_PART="/dev/sda7"
 }
@@ -22,17 +22,17 @@ gentoo() {
 }
 
 ubuntu() {
-	SUBVOL_ROOT="@"
+	ROOT_SUBVOL="@"
 	ROOT_PART="/dev/sda12"
 	BOOT_PART="/dev/sda11"
 }
 
 check_mount_options() {
-	if [[ -n "${SUBVOL_ROOT}" ]]; then
-		SUBVOL_ROOT="-o subvol=${SUBVOL_ROOT} "
+	if [[ -n "${ROOT_SUBVOL}" ]]; then
+		ROOT_SUBVOL="-o subvol=${ROOT_SUBVOL} "
 	fi
-	if [[ -n "${SUBVOL_BOOT}" ]]; then
-		SUBVOL_BOOT="-o subvol=${SUBVOL_BOOT} "
+	if [[ -n "${BOOT_SUBVOL}" ]]; then
+		BOOT_SUBVOL="-o subvol=${BOOT_SUBVOL} "
 	fi
 	if [[ -n "${ROOT_LABEL}" ]]; then
 		ROOT_LABEL="LABEL=${ROOT_LABEL}"
@@ -43,23 +43,24 @@ check_mount_options() {
 }
 
 unset_mount_vars() {
-	for i in "ROOT_PART BOOT_PART ROOT_LABEL BOOT_LABEL SUBVOL_ROOT SUBVOL_BOOT"; do
+	for i in "ROOT_PART BOOT_PART ROOT_LABEL BOOT_LABEL ROOT_SUBVOL BOOT_SUBVOL"; do
 		unset $i
 	done
 }
 
 chroot_mount() {
-	if [[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") && $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]]; then
+	BOOT_MOUNT_DIR="${ROOT_MOUNT_DIR}${DISTRO}/boot"
+	if [[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") && $(findmnt -M "${BOOT_MOUNT_DIR}") ]]; then
 		echo -e "${DISTRO} ROOT and BOOT already mounted...skipping"
 	else
 		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") ]] || \
-			{ mount ${SUBVOL_ROOT}${ROOT_LABEL}${ROOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}; \
+			{ mount ${ROOT_SUBVOL}${ROOT_LABEL}${ROOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}; \
 			echo -e "Mounting ${DISTRO} ROOT"; \
 			NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}"; }
-		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]] || \
-			{ mount ${SUBVOL_BOOT}${BOOT_LABEL}${BOOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}/boot; \
+		[[ $(findmnt -M "${BOOT_MOUNT_DIR}") ]] || \
+			{ mount ${BOOT_SUBVOL}${BOOT_LABEL}${BOOT_PART} ${BOOT_MOUNT_DIR}; \
 			echo -e "Mounting ${DISTRO} BOOT \n"; \
-			NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}/boot"; }
+			NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${BOOT_MOUNT_DIR}"; }
 	fi
 }
 
