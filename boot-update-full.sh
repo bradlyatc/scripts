@@ -3,7 +3,7 @@
 set -e
 
 DISTRO_NAME="budgie funtoo-test gentoo ubuntu"
-ROOT_MOUNT_DIR="/mnt/"
+MOUNT_DIR="/mnt/"
 
 budgie() {
 	ROOT_SUBVOL="@"
@@ -43,24 +43,27 @@ check_mount_options() {
 }
 
 unset_mount_vars() {
-	for i in "ROOT_PART BOOT_PART ROOT_LABEL BOOT_LABEL ROOT_SUBVOL BOOT_SUBVOL"; do
+	for i in {ROOT_,BOOT_}{PART,LABEL,SUBVOL}; do
 		unset $i
 	done
 }
 
 chroot_mount() {
-	BOOT_MOUNT_DIR="${ROOT_MOUNT_DIR}${DISTRO}/boot"
-	if [[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") && $(findmnt -M "${BOOT_MOUNT_DIR}") ]]; then
+	BOOT_MOUNT_DIR="${MOUNT_DIR}${DISTRO}/boot"
+	ROOT_MOUNT_DIR="${MOUNT_DIR}${DISTRO}"
+	if [[ $(findmnt -M "${ROOT_MOUNT_DIR}") && $(findmnt -M "${BOOT_MOUNT_DIR}") ]]; then
 		echo -e "${DISTRO} ROOT and BOOT already mounted...skipping"
 	else
-		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") ]] || \
-			{ mount ${ROOT_SUBVOL}${ROOT_LABEL}${ROOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}; \
-			echo -e "Mounting ${DISTRO} ROOT"; \
-			NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}"; }
-		[[ $(findmnt -M "${BOOT_MOUNT_DIR}") ]] || \
-			{ mount ${BOOT_SUBVOL}${BOOT_LABEL}${BOOT_PART} ${BOOT_MOUNT_DIR}; \
-			echo -e "Mounting ${DISTRO} BOOT \n"; \
-			NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${BOOT_MOUNT_DIR}"; }
+		for REAL in "ROOT BOOT"; do
+			[[ $(findmnt -M "${[$REAL]_MOUNT_DIR}") ]] || \
+				{ mount ${[$REAL]_SUBVOL}${[$REAL]_LABEL}${[$REAL]_PART} ${[$REAL]_MOUNT_DIR}; \
+				echo -e "Mounting ${DISTRO} ${REAL}"; \
+				NEW_${!REAL}_MOUNTS="${NEW_[$REAL]_MOUNTS} ${[$REAL]_MOUNT_DIR}"; }
+		done
+		#[[ $(findmnt -M "${BOOT_MOUNT_DIR}") ]] || \
+		#	{ mount ${BOOT_SUBVOL}${BOOT_LABEL}${BOOT_PART} ${BOOT_MOUNT_DIR}; \
+		#	echo -e "Mounting ${DISTRO} BOOT \n"; \
+		#	NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${BOOT_MOUNT_DIR}"; }
 	fi
 }
 
