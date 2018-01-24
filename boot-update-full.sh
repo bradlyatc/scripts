@@ -3,10 +3,10 @@
 set -e
 
 DISTRO_NAME="budgie funtoo-test gentoo ubuntu"
-MOUNT_DIR="/mnt/"
+ROOT_MOUNT_DIR="/mnt/"
 
 budgie() {
-	ROOT_SUBVOL="@"
+	SUBVOL_ROOT="@"
 	ROOT_PART="/dev/sda5"
 	BOOT_PART="/dev/sda7"
 }
@@ -22,17 +22,17 @@ gentoo() {
 }
 
 ubuntu() {
-	ROOT_SUBVOL="@"
+	SUBVOL_ROOT="@"
 	ROOT_PART="/dev/sda12"
 	BOOT_PART="/dev/sda11"
 }
 
 check_mount_options() {
-	if [[ -n "${ROOT_SUBVOL}" ]]; then
-		ROOT_SUBVOL="-o subvol=${ROOT_SUBVOL} "
+	if [[ -n "${SUBVOL_ROOT}" ]]; then
+		SUBVOL_ROOT="-o subvol=${SUBVOL_ROOT} "
 	fi
-	if [[ -n "${BOOT_SUBVOL}" ]]; then
-		BOOT_SUBVOL="-o subvol=${BOOT_SUBVOL} "
+	if [[ -n "${SUBVOL_BOOT}" ]]; then
+		SUBVOL_BOOT="-o subvol=${SUBVOL_BOOT} "
 	fi
 	if [[ -n "${ROOT_LABEL}" ]]; then
 		ROOT_LABEL="LABEL=${ROOT_LABEL}"
@@ -43,27 +43,23 @@ check_mount_options() {
 }
 
 unset_mount_vars() {
-	for i in {ROOT_,BOOT_}{PART,LABEL,SUBVOL}; do
+	for i in "ROOT_PART BOOT_PART ROOT_LABEL BOOT_LABEL SUBVOL_ROOT SUBVOL_BOOT"; do
 		unset $i
 	done
 }
 
 chroot_mount() {
-	BOOT_MOUNT_DIR="${MOUNT_DIR}${DISTRO}/boot"
-	ROOT_MOUNT_DIR="${MOUNT_DIR}${DISTRO}"
-	if [[ $(findmnt -M "${ROOT_MOUNT_DIR}") && $(findmnt -M "${BOOT_MOUNT_DIR}") ]]; then
+	if [[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") && $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]]; then
 		echo -e "${DISTRO} ROOT and BOOT already mounted...skipping"
 	else
-		for REAL in "ROOT BOOT"; do
-			[[ $(findmnt -M "${[$REAL]_MOUNT_DIR}") ]] || \
-				{ mount ${[$REAL]_SUBVOL}${[$REAL]_LABEL}${[$REAL]_PART} ${[$REAL]_MOUNT_DIR}; \
-				echo -e "Mounting ${DISTRO} ${REAL}"; \
-				NEW_${!REAL}_MOUNTS="${NEW_[$REAL]_MOUNTS} ${[$REAL]_MOUNT_DIR}"; }
-		done
-		#[[ $(findmnt -M "${BOOT_MOUNT_DIR}") ]] || \
-		#	{ mount ${BOOT_SUBVOL}${BOOT_LABEL}${BOOT_PART} ${BOOT_MOUNT_DIR}; \
-		#	echo -e "Mounting ${DISTRO} BOOT \n"; \
-		#	NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${BOOT_MOUNT_DIR}"; }
+		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") ]] || \
+			{ mount ${SUBVOL_ROOT}${ROOT_LABEL}${ROOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}; \
+			echo -e "Mounting ${DISTRO} ROOT"; \
+			NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}"; }
+		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]] || \
+			{ mount ${SUBVOL_BOOT}${BOOT_LABEL}${BOOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}/boot; \
+			echo -e "Mounting ${DISTRO} BOOT \n"; \
+			NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}/boot"; }
 	fi
 }
 
