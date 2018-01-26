@@ -28,18 +28,10 @@ ubuntu() {
 }
 
 check_mount_options() {
-	if [[ -n "${ROOT_SUBVOL}" ]]; then
-		ROOT_SUBVOL="-o subvol=${ROOT_SUBVOL} "
-	fi
-	if [[ -n "${BOOT_SUBVOL}" ]]; then
-		BOOT_SUBVOL="-o subvol=${BOOT_SUBVOL} "
-	fi
-	if [[ -n "${ROOT_LABEL}" ]]; then
-		ROOT_LABEL="LABEL=${ROOT_LABEL}"
-	fi
-	if [[ -n "${BOOT_LABEL}" ]]; then
-		BOOT_LABEL="LABEL=${BOOT_LABEL}"
-	fi
+	[[ -n "${ROOT_SUBVOL}" ]] && export ROOT_SUBVOL="-o subvol=${ROOT_SUBVOL} "
+	[[ -n "${BOOT_SUBVOL}" ]] && export BOOT_SUBVOL="-o subvol=${BOOT_SUBVOL} "
+	[[ -n "${ROOT_LABEL}" ]] && export ROOT_LABEL="LABEL=${ROOT_LABEL}"
+	[[ -n "${BOOT_LABEL}" ]] && export BOOT_LABEL="LABEL=${BOOT_LABEL}"
 }
 
 unset_mount_vars() {
