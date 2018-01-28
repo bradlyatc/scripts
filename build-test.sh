@@ -46,10 +46,10 @@ BOOT_LABEL="${BOOT_LABEL/#/LABEL=}"
 
 [[ $(ispart ROOT) ]] && { mount ${ROOT_SUBVOL}${ROOT_PART}${ROOT_LABEL} $ROOT_MOUNT_DIR; echo "Mounting: ROOT: ${ROOT_SUBVOL}${ROOT_PART}${ROOT_LABEL} @: $ROOT_MOUNT_DIR"; };
 
-[[ $(ispart BOOT) ]] && { [[ -e "$ROOT_MOUNT_DIR/boot" ]] && { mount ${BOOT_PART}${BOOT_LABEL} "$ROOT_MOUNT_DIR/boot"; \
-	echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL} @: $ROOT_MOUNT_DIR/boot";}; } || \
-[[ $(ispart BOOT) ]] && { [[ ! -e "$ROOT_MOUNT_DIR/boot" ]] && { mkdir $ROOT_MOUNT_DIR/boot; echo "Creating directory $ROOT_MOUNT_DIR/boot"; \
-	mount ${BOOT_PART}${BOOT_LABEL} "$ROOT_MOUNT_DIR/boot"; echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL} @: $ROOT_MOUNT_DIR/boot";} };
+( [[ $(ispart BOOT) ]] && [ -e "$ROOT_MOUNT_DIR/boot" ] ) && { mount ${BOOT_PART}${BOOT_LABEL} "$ROOT_MOUNT_DIR/boot"; \
+	echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL} @: $ROOT_MOUNT_DIR/boot"; };
+( [[ $(ispart BOOT) ]] && [ ! -e "$ROOT_MOUNT_DIR/boot" ] ) && { mkdir "$ROOT_MOUNT_DIR/boot"; echo "Creating directory $ROOT_MOUNT_DIR/boot"; \
+	mount ${BOOT_PART}${BOOT_LABEL} "$ROOT_MOUNT_DIR/boot"; echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL} @: $ROOT_MOUNT_DIR/boot"; };
 
 # copy and unpack stage3
 if [ ! -e $FILES_DIR/$STAGE_NAME ]; then
@@ -85,7 +85,7 @@ mount --bind $DISTFILES_DIR ${ROOT_MOUNT_DIR}${DISTFILES_DIR}
 echo "Bind mounting $DISTFILES_DIR"
 
 # copy fstab from $FILES_DIR
-( [ $(ispart ROOT) ] && [ -e $FILES_DIR/fstab ] ) && cp $FILES_DIR/fstab $ROOT_MOUNT_DIR/etc && echo "Copying fstab from $FILES_DIR"
+( [[ $(ispart ROOT) ]] && [ -e $FILES_DIR/fstab ] ) && cp $FILES_DIR/fstab $ROOT_MOUNT_DIR/etc && echo "Copying fstab from $FILES_DIR"
 
 # copy make.conf from $FILES_DIR
 [ -e $FILES_DIR/make.conf ] && cp $FILES_DIR/make.conf $ROOT_MOUNT_DIR/etc/portage && echo "Copying make.conf from $FILES_DIR"
@@ -117,8 +117,4 @@ env -i HOME=/root TERM=$TERM /usr/bin/chroot $ROOT_MOUNT_DIR /bin/bash -l
 echo -e "Unmounting ${ROOT_MOUNT_DIR}"
 [[ $(findmnt -M "${ROOT_MOUNT_DIR}${META_REPO_DIR}") ]] && umount -lR "${ROOT_MOUNT_DIR}${META_REPO_DIR}"
 [[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTFILES_DIR}") ]] && umount -lR "${ROOT_MOUNT_DIR}${DISTFILES_DIR}"
-if [[ $(ispart ROOT) ]]; then
-	umount -lR $ROOT_MOUNT_DIR
-else
-	umount -lR $ROOT_MOUNT_DIR{/dev,/sys,/proc,/tmp}
-fi
+[[ $(ispart ROOT) ]] && umount -lR $ROOT_MOUNT_DIR || umount -lR $ROOT_MOUNT_DIR{/dev,/sys,/proc,/tmp}
