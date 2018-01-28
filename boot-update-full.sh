@@ -1,9 +1,10 @@
 #!/bin/bash
 
 set -e
+clear
 
 DISTRO_NAME="budgie funtoo-test gentoo ubuntu"
-ROOT_MOUNT_DIR="/mnt/"
+MOUNTS_DIR="/mnt"
 
 budgie() {
 	ROOT_SUBVOL="@"
@@ -27,21 +28,6 @@ ubuntu() {
 	BOOT_PART="/dev/sda11"
 }
 
-#check_mount_options() {
-#	if [[ ! -z "${ROOT_SUBVOL}" ]]; then
-#		ROOT_SUBVOL="-o subvol=${ROOT_SUBVOL} "
-#	fi
-#	if [[ ! -z "${BOOT_SUBVOL}" ]]; then
-#		BOOT_SUBVOL="-o subvol=${BOOT_SUBVOL} "
-#	fi
-#	if [[ ! -z "${ROOT_LABEL}" ]]; then
-#		ROOT_LABEL="LABEL=${ROOT_LABEL}"
-#	fi
-#	if [[ ! -z "${BOOT_LABEL}" ]]; then
-#		BOOT_LABEL="LABEL=${BOOT_LABEL}"
-#	fi
-#}
-
 unset_mount_vars() {
 	for i in {ROOT,BOOT}{_PART,_LABEL,_SUBVOL}; do
 		unset $i
@@ -49,29 +35,29 @@ unset_mount_vars() {
 }
 
 chroot_mount() {
-	if [[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") && $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]]; then
-		echo -e "${DISTRO} ROOT and BOOT already mounted...skipping"
+	if [[ $(findmnt -M "${MOUNTS_DIR}/${DISTRO}") && $(findmnt -M "${MOUNTS_DIR}/${DISTRO}/boot") ]]; then
+		echo -e "${DISTRO} ROOT and BOOT already mounted...skipping \n"
 	else
-		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") ]] || \
-			(mount ${ROOT_SUBVOL/#/-o subvol=} ${ROOT_LABEL/#/LABEL=}${ROOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}; \
-			echo -e "Mounting ${DISTRO} ROOT"; \
-			NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}";)
-		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]] || \
-			(mount ${BOOT_SUBVOL/#/-o subvol=} ${BOOT_LABEL/#/LABEL=}${BOOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}/boot; \
-			echo -e "Mounting ${DISTRO} BOOT \n"; \
-			NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}/boot";)
+		[[ $(findmnt -M "${MOUNTS_DIR}/${DISTRO}") ]] && echo -e "${DISTRO} ROOT already mounted at ${MOUNTS_DIR}/${DISTRO}...skipping" || \
+			{ mount ${ROOT_SUBVOL/#/-o subvol=} ${ROOT_LABEL/#/LABEL=}${ROOT_PART} "${MOUNTS_DIR}/${DISTRO}"; \
+			echo -e "Mounting ${DISTRO} ROOT: ${ROOT_SUBVOL/#/subvol=} ${ROOT_LABEL/#/LABEL=}${ROOT_PART} @: ${MOUNTS_DIR}/${DISTRO}"; \
+			ROOT_MOUNTS=(${ROOT_MOUNTS[@]} "${MOUNTS_DIR}/${DISTRO}"); };
+		[[ $(findmnt -M "${MOUNTS_DIR}/${DISTRO}/boot") ]] && echo -e "${DISTRO} BOOT already mounted at ${MOUNTS_DIR}/${DISTRO}/boot...skipping \n" || \
+			{ mount ${BOOT_SUBVOL/#/-o subvol=} ${BOOT_LABEL/#/LABEL=}${BOOT_PART} "${MOUNTS_DIR}/${DISTRO}/boot"; \
+			echo -e "Mounting ${DISTRO} BOOT: ${BOOT_SUBVOL/#/subvol=} ${BOOT_LABEL/#/LABEL=}${BOOT_PART} @: ${MOUNTS_DIR}/${DISTRO}/boot \n"; \
+			BOOT_MOUNTS=(${BOOT_MOUNTS[@]} "${MOUNTS_DIR}/${DISTRO}/boot"); };
 	fi
 }
 
 chroot_unmount() {
-	for MOUNTED in ${NEW_BOOT_MOUNTS} ${NEW_ROOT_MOUNTS};do
-		[[ $(findmnt -M ${MOUNTED}) ]] && umount -lR ${MOUNTED} && echo -e "Unmounting: ${MOUNTED}"
+	ALL_MOUNTS=(${BOOT_MOUNTS[@]} ${ROOT_MOUNTS[@]})
+	for MOUNTED in ${ALL_MOUNTS[@]};do
+		[[ $(findmnt -M ${MOUNTED}) ]] && umount -lR ${MOUNTED} && echo -e "Unmounting: ${MOUNTED}"  
 	done
 }
 
 for DISTRO in ${DISTRO_NAME}; do
 	$DISTRO;
-	#check_mount_options
 	chroot_mount
 	unset_mount_vars
 done
