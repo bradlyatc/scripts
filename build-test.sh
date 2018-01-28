@@ -85,7 +85,7 @@ mount --bind $DISTFILES_DIR ${ROOT_MOUNT_DIR}${DISTFILES_DIR}
 echo "Bind mounting $DISTFILES_DIR"
 
 # copy fstab from $FILES_DIR
-( [ $(ispart) ]&& [ -e $FILES_DIR/fstab ] ) && cp $FILES_DIR/fstab $ROOT_MOUNT_DIR/etc && echo "Copying fstab from $FILES_DIR"
+( [ $(ispart ROOT) ] && [ -e $FILES_DIR/fstab ] ) && cp $FILES_DIR/fstab $ROOT_MOUNT_DIR/etc && echo "Copying fstab from $FILES_DIR"
 
 # copy make.conf from $FILES_DIR
 [ -e $FILES_DIR/make.conf ] && cp $FILES_DIR/make.conf $ROOT_MOUNT_DIR/etc/portage && echo "Copying make.conf from $FILES_DIR"
@@ -117,7 +117,7 @@ env -i HOME=/root TERM=$TERM /usr/bin/chroot $ROOT_MOUNT_DIR /bin/bash -l
 echo -e "Unmounting ${ROOT_MOUNT_DIR}"
 [[ $(findmnt -M "${ROOT_MOUNT_DIR}${META_REPO_DIR}") ]] && umount -lR "${ROOT_MOUNT_DIR}${META_REPO_DIR}"
 [[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTFILES_DIR}") ]] && umount -lR "${ROOT_MOUNT_DIR}${DISTFILES_DIR}"
-if [[ $(ispart) ]]; then
+if [[ $(ispart ROOT) ]]; then
 	umount -lR $ROOT_MOUNT_DIR
 else
 	umount -lR $ROOT_MOUNT_DIR{/dev,/sys,/proc,/tmp}
