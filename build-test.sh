@@ -38,7 +38,7 @@ ispart() {
 
 # mount physical filesystems and create directories if they don't exist
 ROOT_MOUNT_DIR="${MOUNT_DIR}/${BUILD_NAME}"
-[[ ! -z "${ROOT_SUBVOL}" ]] && ROOT_SUBVOL="-o subvol=${ROOT_SUBVOL}"
+ROOT_SUBVOL="${ROOT_SUBVOL/#/-o subvol=} "
 if [[ $(ispart) ]]; then
 	if [ -e "$ROOT_MOUNT_DIR" ]; then
 		mount $ROOT{_SUBVOL,_PART,_LABEL} $ROOT_MOUNT_DIR
@@ -96,7 +96,7 @@ mount --bind $DISTFILES_DIR ${ROOT_MOUNT_DIR}${DISTFILES_DIR}
 echo "Bind mounting $DISTFILES_DIR"
 
 # copy fstab from $FILES_DIR
-[ -e $FILES_DIR/fstab ] && cp $FILES_DIR/fstab $ROOT_MOUNT_DIR/etc && echo "Copying fstab from $FILES_DIR"
+( [ $(ispart) ]&& [ -e $FILES_DIR/fstab ] ) && cp $FILES_DIR/fstab $ROOT_MOUNT_DIR/etc && echo "Copying fstab from $FILES_DIR"
 
 # copy make.conf from $FILES_DIR
 [ -e $FILES_DIR/make.conf ] && cp $FILES_DIR/make.conf $ROOT_MOUNT_DIR/etc/portage && echo "Copying make.conf from $FILES_DIR"

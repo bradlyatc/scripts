@@ -27,20 +27,20 @@ ubuntu() {
 	BOOT_PART="/dev/sda11"
 }
 
-check_mount_options() {
-	if [[ ! -z "${ROOT_SUBVOL}" ]]; then
-		ROOT_SUBVOL="-o subvol=${ROOT_SUBVOL} "
-	fi
-	if [[ ! -z "${BOOT_SUBVOL}" ]]; then
-		BOOT_SUBVOL="-o subvol=${BOOT_SUBVOL} "
-	fi
-	if [[ ! -z "${ROOT_LABEL}" ]]; then
-		ROOT_LABEL="LABEL=${ROOT_LABEL}"
-	fi
-	if [[ ! -z "${BOOT_LABEL}" ]]; then
-		BOOT_LABEL="LABEL=${BOOT_LABEL}"
-	fi
-}
+#check_mount_options() {
+#	if [[ ! -z "${ROOT_SUBVOL}" ]]; then
+#		ROOT_SUBVOL="-o subvol=${ROOT_SUBVOL} "
+#	fi
+#	if [[ ! -z "${BOOT_SUBVOL}" ]]; then
+#		BOOT_SUBVOL="-o subvol=${BOOT_SUBVOL} "
+#	fi
+#	if [[ ! -z "${ROOT_LABEL}" ]]; then
+#		ROOT_LABEL="LABEL=${ROOT_LABEL}"
+#	fi
+#	if [[ ! -z "${BOOT_LABEL}" ]]; then
+#		BOOT_LABEL="LABEL=${BOOT_LABEL}"
+#	fi
+#}
 
 unset_mount_vars() {
 	for i in {ROOT,BOOT}{_PART,_LABEL,_SUBVOL}; do
@@ -53,11 +53,11 @@ chroot_mount() {
 		echo -e "${DISTRO} ROOT and BOOT already mounted...skipping"
 	else
 		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}") ]] || \
-			(mount ${ROOT_SUBVOL}${ROOT_LABEL}${ROOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}; \
+			(mount ${ROOT_SUBVOL/#/-o subvol=} ${ROOT_LABEL/#/LABEL=}${ROOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}; \
 			echo -e "Mounting ${DISTRO} ROOT"; \
 			NEW_ROOT_MOUNTS="${NEW_ROOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}";)
 		[[ $(findmnt -M "${ROOT_MOUNT_DIR}${DISTRO}/boot") ]] || \
-			(mount ${BOOT_SUBVOL}${BOOT_LABEL}${BOOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}/boot; \
+			(mount ${BOOT_SUBVOL/#/-o subvol=} ${BOOT_LABEL/#/LABEL=}${BOOT_PART} ${ROOT_MOUNT_DIR}${DISTRO}/boot; \
 			echo -e "Mounting ${DISTRO} BOOT \n"; \
 			NEW_BOOT_MOUNTS="${NEW_BOOT_MOUNTS} ${ROOT_MOUNT_DIR}${DISTRO}/boot";)
 	fi
@@ -71,7 +71,7 @@ chroot_unmount() {
 
 for DISTRO in ${DISTRO_NAME}; do
 	$DISTRO;
-	check_mount_options
+	#check_mount_options
 	chroot_mount
 	unset_mount_vars
 done
