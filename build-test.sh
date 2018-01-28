@@ -3,7 +3,7 @@
 set -e
 
 # define name of chroot build
-BUILD_NAME="buildtest"
+BUILD_NAME="build-test"
 
 # define directory used for mounts
 MOUNT_DIR="/mnt"
@@ -24,14 +24,14 @@ DISTFILES_DIR="/var/cache/portage/distfiles"
 META_REPO_DIR="/var/git/meta-repo"
 
 # define partitions to mount
-#ROOT_LABEL="LABEL=Test-Root"
-#BOOT_LABEL="LABEL=Test-Boot"
+ROOT_LABEL="Test-Root"
+BOOT_LABEL="Test-Boot"
 #ROOT_PART="/dev/sda#"
 #BOOT_PART="/dev/sda#"
 #ROOT_SUBVOL="@"
 
 ispart() {
-	for i in {ROOT,BOOT}{_LABEL,_PART,_SUBVOL}; do
+	for i in ${1}{_LABEL,_PART,_SUBVOL}; do
 		[[ ! -z "${!i}" ]] && echo "${!i}" && return
 	done
 }
@@ -39,28 +39,17 @@ ispart() {
 # mount physical filesystems and create directories if they don't exist
 ROOT_MOUNT_DIR="${MOUNT_DIR}/${BUILD_NAME}"
 ROOT_SUBVOL="${ROOT_SUBVOL/#/-o subvol=} "
-if [[ $(ispart) ]]; then
-	if [ -e "$ROOT_MOUNT_DIR" ]; then
-		mount $ROOT{_SUBVOL,_PART,_LABEL} $ROOT_MOUNT_DIR
-	else
-		mkdir $ROOT_MOUNT_DIR && mount $ROOT{_SUBVOL,_PART,_LABEL} $ROOT_MOUNT_DIR
-	fi
-echo "Mounting: $ROOT{_SUBVOL,_PART,_LABEL} @ $ROOT_MOUNT_DIR"
+ROOT_LABEL="${ROOT_LABEL/#/LABEL=}"
+BOOT_LABEL="${BOOT_LABEL/#/LABEL=}"
 
-	if [ -e "$ROOT_MOUNT_DIR/boot" ]; then
-		mount $BOOT{_PART,_LABEL} $ROOT_MOUNT_DIR/boot
-	else
-		mkdir $ROOT_MOUNT_DIR/boot && mount $BOOT{_PART,_LABEL} $ROOT_MOUNT_DIR/boot
-	fi
-echo "Mounting: $BOOT{_PART,_LABEL} @ $ROOT_MOUNT_DIR/boot"
-fi
+[[ -e "$ROOT_MOUNT_DIR" ]] && echo "Using $ROOT_MOUNT_DIR" || {  mkdir $ROOT_MOUNT_DIR && echo "Creating directory $ROOT_MOUNT_DIR"; };
 
-if [ -e "$ROOT_MOUNT_DIR" ]; then
-	echo "Using $ROOT_MOUNT_DIR"
-else
-	mkdir $ROOT_MOUNT_DIR
-	echo "Creating directory $ROOT_MOUNT_DIR"
-fi
+[[ $(ispart ROOT) ]] && { mount ${ROOT_SUBVOL}${ROOT_PART}${ROOT_LABEL} $ROOT_MOUNT_DIR; echo "Mounting: ROOT: ${ROOT_SUBVOL}${ROOT_PART}${ROOT_LABEL} @: $ROOT_MOUNT_DIR"; };
+
+[[ $(ispart BOOT) ]] && { [[ -e "$ROOT_MOUNT_DIR/boot" ]] && { mount ${BOOT_PART}${BOOT_LABEL} "$ROOT_MOUNT_DIR/boot"; \
+	echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL} @: $ROOT_MOUNT_DIR/boot";}; } || \
+[[ $(ispart BOOT) ]] && { [[ ! -e "$ROOT_MOUNT_DIR/boot" ]] && { mkdir $ROOT_MOUNT_DIR/boot; echo "Creating directory $ROOT_MOUNT_DIR/boot"; \
+	mount ${BOOT_PART}${BOOT_LABEL} "$ROOT_MOUNT_DIR/boot"; echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL} @: $ROOT_MOUNT_DIR/boot";} };
 
 # copy and unpack stage3
 if [ ! -e $FILES_DIR/$STAGE_NAME ]; then
