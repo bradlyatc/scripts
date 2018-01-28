@@ -120,16 +120,6 @@ for dir in sys dev; do
 done
 echo "Bind mounting proc,sys,dev,tmp"
 
-## needed if chrooting on non-gentoo based systems
-#test -L /dev/shm && rm /dev/shm && mkdir /dev/shm
-#mount -t tmpfs -o nosuid,nodev,noexec shm /dev/shm
-#chmod 1777 /dev/shm
-
-## needed for os-prober to test EFI system partition
-#mkdir -p $ROOT_MOUNT_DIR/run/udev
-#mount -o bind /run/udev $ROOT_MOUNT_DIR/run/udev
-#mount --make-rslave $ROOT_MOUNT_DIR/run/udev
-
 # chroot into our new root
 echo "Chrooting into $ROOT_MOUNT_DIR"
 env -i HOME=/root TERM=$TERM /usr/bin/chroot $ROOT_MOUNT_DIR /bin/bash -l
