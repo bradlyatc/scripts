@@ -34,4 +34,5 @@ done
 # chroot into our new root 
 env -i HOME=/root TERM=$TERM /usr/bin/chroot $MOUNTDIR /bin/bash -l
 
+echo -e "Unmounting: $MOUNTDIR"
 umount -lR $MOUNTDIR

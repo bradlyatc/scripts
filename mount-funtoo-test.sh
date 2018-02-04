@@ -3,7 +3,7 @@
 set -e
 
 # define directory to be our chroot
-MOUNT="/mnt/funtoo-test"
+MOUNTDIR="/mnt/funtoo-test"
 
 # define distfiles directory for bind mount
 DISTFILES_DIR="/var/cache/portage/distfiles"
@@ -13,25 +13,25 @@ ROOT_PART="LABEL=Funtoo-Root"
 BOOT_PART="LABEL=Funtoo-Boot"
 
 # mount physical filesystems
-mount $ROOT_PART $MOUNT
-mount $BOOT_PART $MOUNT/boot
+mount $ROOT_PART $MOUNTDIR
+mount $BOOT_PART $MOUNTDIR/boot
 
 # copy DNS info
-cp -L /etc/resolv.conf $MOUNT/etc
+cp -L /etc/resolv.conf $MOUNTDIR/etc
 
 ## bind mount meta-repo git
-#test -d $MOUNT/var/git && mount --bind /var/git $MOUNT/var/git || mkdir $MOUNT/var/git && mount --bind /var/git $MOUNT/var/git 
+#test -d $MOUNTDIR/var/git && mount --bind /var/git $MOUNTDIR/var/git || mkdir $MOUNTDIR/var/git && mount --bind /var/git $MOUNTDIR/var/git 
 
 ## bind mount distfiles
-#mount --bind $DISTFILES_DIR ${MOUNT}${DISTFILES_DIR}
+#mount --bind $DISTFILES_DIR ${MOUNTDIR}${DISTFILES_DIR}
 
 # mount bind proc sys dev tmp to real root
-mount -t proc /proc $MOUNT/proc
-mount --rbind /tmp $MOUNT/tmp
+mount -t proc /proc $MOUNTDIR/proc
+mount --rbind /tmp $MOUNTDIR/tmp
 
 for dir in sys dev; do
-	mount --rbind /$dir $MOUNT/$dir
-	mount --make-rslave $MOUNT/$dir
+	mount --rbind /$dir $MOUNTDIR/$dir
+	mount --make-rslave $MOUNTDIR/$dir
 done
 
 
@@ -41,13 +41,13 @@ done
 #chmod 1777 /dev/shm
 
 ## needed for os-prober to test EFI system partition
-#mkdir -p $MOUNT/run/udev
-#mount -o bind /run/udev $MOUNT/run/udev
-#mount --make-rslave $MOUNT/run/udev
+#mkdir -p $MOUNTDIR/run/udev
+#mount -o bind /run/udev $MOUNTDIR/run/udev
+#mount --make-rslave $MOUNTDIR/run/udev
 
 # chroot into our new root
-env -i HOME=/root TERM=$TERM /usr/bin/chroot $MOUNT /bin/bash -l
+env -i HOME=/root TERM=$TERM /usr/bin/chroot $MOUNTDIR /bin/bash -l
 
 # unmount chroot on exit
-echo -e "Unmounting ${MOUNT}"
-umount -lR $MOUNT
+echo -e "Unmounting ${MOUNTDIR}"
+umount -lR $MOUNTDIR
