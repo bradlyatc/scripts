@@ -11,15 +11,6 @@ MOUNT_DIR="/mnt"
 # define directory to download stage3 tarball and configs
 FILES_DIR="/root/buildfiles"
 
-# define FETCH_LINK to point to stage download link
-FETCH_LINK="http://build.funtoo.org/funtoo-current"
-
-# set ARCH as x86-64bit or x86-32bit
-ARCH="x86-64bit"
-
-# set subarch stage optimization. choose from subarches listed at https://www.funtoo.org/Subarches
-SUB_ARCH="generic_64"
-
 # define stage tarball name
 STAGE_NAME="stage3-latest.tar.xz"
 
@@ -32,7 +23,7 @@ DISTFILES_DIR="/var/cache/portage/distfiles"
 # define meta-repo directory
 META_REPO_DIR="/var/git/meta-repo"
 
-# define partitions to mount. if unset it will use directory only
+# define partitions to mount
 ROOT_LABEL="Test-Root"
 BOOT_LABEL="Test-Boot"
 #ROOT_PART="/dev/sda#"
@@ -47,30 +38,32 @@ ispart() {
 
 # mount physical filesystems and create directories if they don't exist
 ROOT_MOUNT_DIR="${MOUNT_DIR}/${BUILD_NAME}"
+ROOT_SUBVOL="${ROOT_SUBVOL/#/-o subvol=} "
+ROOT_LABEL="${ROOT_LABEL/#/LABEL=}"
+BOOT_LABEL="${BOOT_LABEL/#/LABEL=}"
 
-[[ -e "$ROOT_MOUNT_DIR" ]] && echo "Using $ROOT_MOUNT_DIR" || { mkdir $ROOT_MOUNT_DIR && echo "Creating directory $ROOT_MOUNT_DIR"; };
+[[ -e "$ROOT_MOUNT_DIR" ]] && echo "Using $ROOT_MOUNT_DIR" || {  mkdir $ROOT_MOUNT_DIR && echo "Creating directory $ROOT_MOUNT_DIR"; };
 
-[[ $(ispart ROOT) ]] && { mount ${ROOT_SUBVOL/#/-o subvol= }${ROOT_PART}${ROOT_LABEL/#/LABEL=} $ROOT_MOUNT_DIR; \
-	echo "Mounting: ROOT: ${ROOT_SUBVOL/#/-o subvol= }${ROOT_PART}${ROOT_LABEL/#/LABEL=} @: $ROOT_MOUNT_DIR"; };
+[[ $(ispart ROOT) ]] && { mount ${ROOT_SUBVOL}${ROOT_PART}${ROOT_LABEL} $ROOT_MOUNT_DIR; echo "Mounting: ROOT: ${ROOT_SUBVOL}${ROOT_PART}${ROOT_LABEL} @: $ROOT_MOUNT_DIR"; };
 
-( [[ $(ispart BOOT) ]] && [ -e "$ROOT_MOUNT_DIR/boot" ] ) && { mount ${BOOT_PART}${BOOT_LABEL/#/LABEL=} "$ROOT_MOUNT_DIR/boot"; \
-	echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL/#/LABEL=} @: $ROOT_MOUNT_DIR/boot"; };
+( [[ $(ispart BOOT) ]] && [ -e "$ROOT_MOUNT_DIR/boot" ] ) && { mount ${BOOT_PART}${BOOT_LABEL} "$ROOT_MOUNT_DIR/boot"; \
+	echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL} @: $ROOT_MOUNT_DIR/boot"; };
 ( [[ $(ispart BOOT) ]] && [ ! -e "$ROOT_MOUNT_DIR/boot" ] ) && { mkdir "$ROOT_MOUNT_DIR/boot"; echo "Creating directory $ROOT_MOUNT_DIR/boot"; \
-	mount ${BOOT_PART}${BOOT_LABEL/#/LABEL=} "$ROOT_MOUNT_DIR/boot"; echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL/#/LABEL=} @: $ROOT_MOUNT_DIR/boot"; };
+	mount ${BOOT_PART}${BOOT_LABEL} "$ROOT_MOUNT_DIR/boot"; echo "Mounting: BOOT: ${BOOT_PART}${BOOT_LABEL} @: $ROOT_MOUNT_DIR/boot"; };
 
 # copy and unpack stage3
 if [ ! -e $FILES_DIR/$STAGE_NAME ]; then
 	echo "No stage3 found, fetching:"
 	cd $FILES_DIR
-	wget $FETCH_LINK/$ARCH/$SUB_ARCH/$STAGE_NAME
+	wget http://build.funtoo.org/funtoo-current/x86-64bit/generic_64/stage3-latest.tar.xz
 fi
 
-if [ ! -e $ROOT_MOUNT_DIR/".unpacked" ]; then
+if [ ! -e $ROOT_MOUNT_DIR/.unpacked ]; then
 	echo "Unpacking stage3 to $ROOT_MOUNT_DIR"
 	cp $FILES_DIR/$STAGE_NAME $ROOT_MOUNT_DIR
 	cd $ROOT_MOUNT_DIR
 	tar -xpf $STAGE_NAME
-	touch $ROOT_MOUNT_DIR/".unpacked" && echo $(date) >> $ROOT_MOUNT_DIR/".unpacked"
+	touch .unpacked && echo $(date) >> .unpacked
 fi
 
 # copy DNS info
