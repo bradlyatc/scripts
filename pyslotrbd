@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import portage
+
+vardb = portage.db["/"]["vartree"].dbapi
+
+for cp in sorted(vardb.cp_all()):
+    for cpv in vardb.cp_list(cp):
+        slot, iuse = vardb.aux_get(cpv, ["SLOT", "IUSE"])
+        slot = slot.split("/")[0]
+        iuse = iuse.split()
+        if any(flag.startswith("python_targets_") for flag in iuse):
+            print(cp+":"+slot)
