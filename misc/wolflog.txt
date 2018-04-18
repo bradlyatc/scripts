@@ -1,0 +1,139 @@
+ Current Bugs :: https://goo.gl/CTX1qO | Next Meeting :: Saturday 21 
+April 2018 22:00 UTC - In your time: https://goo.gl/DkXEDh | Agenda :: 
+https://wiki.gentoo.org/wiki/Foundation:Meetings/2
+11:20 -!- whubbs [~whubbs@gentoo/developer/williamh] has joined 
+#gentoo-trustees
+11:28 -!- Arfrever [~Arfrever@apache/committer/Arfrever] has joined 
+#gentoo-trustees
+12:13 -!- jstein_ [~jstein@gentoo/developer/jstein] has joined 
+#gentoo-trustees
+12:13 -!- jstein_ is now known as jstein
+13:49 <+Shentino> I find myself agreeing with drobbins on the last post 
+to the ML
+13:49 <+Shentino> if he is a foundation member then posting to -nfp does 
+seem to be pretty close to a legal right
+13:50 <+Shentino> though...perhaps a bit more kindly worded
+13:51 <+mgorny> wltjr is not a foundation member
+13:51 <+dwfreed> drobbins was talking about himself
+13:51 <+Shentino> I was speaking of drobbins, not wltjr
+13:52 <+antarus> my advise is to not engage on the thread
+13:52 <+antarus> (with either)
+13:52 <+Shentino> then again drobbins could always just email trustees@ 
+directly I suppose.  nfp just makes it public
+13:52 <+Shentino> *shrugs*
+13:52  * mgorny wonders if drobbins has voted in the recent elections
+13:53 <+antarus> He only joined the foundatoin recently
+13:53 <+antarus> so he hasn't had the opportunity
+13:53 <+mgorny> oh
+13:53 <+mgorny> someone let the wolf in
+13:54 <+mgorny> prometheanfire: btw do trustees want some indication 
+when people are retired for gentoo? i'm thinking mostly for removing 
+foundation membership of inactive ex-devs
+13:54 <+mgorny> from*
+13:55 <+antarus> I think the rolls are only updated near elecetion time 
+by the secretary
+13:55 <+antarus> but afaik, they *are* updated
+13:57 <@prometheanfire> mgorny: we don't remove devs that have been 
+retired, if they continue voting they remain, just as non-dev foundation 
+members
+13:58 <@prometheanfire> it may be useful for tracking, but not much so
+14:00 <+mgorny> prometheanfire: wasn't it more like 'we keep them if 
+they say they want to stay'?
+14:00 <+Shentino> "the wolf"
+14:01 <@prometheanfire> mgorny: I'm not sure that was stated, but voting 
+is in effect doing that (have to vote at least every other election
+14:01 <+mgorny> Shentino: meaning might have been lost in translation
+14:01 <+Shentino> You were referring to drobbins I presume
+14:01 <+Shentino> and about him joining the foundation
+14:02 <+Shentino> Is that what you were referring to mgorny?
+14:06 <+antarus> rich0: really prefer you not engage
+14:06 <+antarus> please don't
+14:07 <+rich0> antarus: ?
+14:07 <+antarus> (on -nfp)
+14:07 <+rich0> I don't plan to send any replies that haven't already 
+been sent.
+14:08 <+mgorny> Shentino: can't answer that question
+14:09 <+mgorny> rich0: just make it real 'not plan', not drobbins' 'not 
+plan but sending one 5 minutes later anyway'
+14:09 <+Shentino> I think language like "let the wolf in" is a 
+bit...pejorative, imo
+14:09 <+mgorny> Shentino: the wolf's bitten me pretty hard
+14:10 <+mgorny> he's got big teeth and big eyes and...
+14:10 <+Shentino> ...looks good in drag?
+14:10 <+Shentino> I presume that's why he wore granny's pj's after 
+eating her
+14:10 <+rich0> antarus, mgorny: well, seems that drobbins already has 
+the job of replying to his emails covered...
+14:11 <+antarus> :)
+14:11 <+rich0> Now I just need to coach him to make his emails longer and I'll be redundant...
+14:12 <+NeddySeagoon> Shentino: and he'll huff and he'll puff and blow your house down
+14:12 <+Shentino> a house whose colors are still being argued about to this day.  At least they finally painted the damn bikeshed
+14:13 <+mgorny> Shentino: but it's unclear whether bikeshed is to be considered part of the house or an independent republic
+14:14 <+Shentino> Neither, it was seized because someone missed the filing deadline for the property taxes so it was seized
+14:16 <+rich0> Did I stumble into a sovereign citizen court hearing?
+14:16  * antarus cringes
+14:20 <+Shentino> LOL
+14:21 <@prometheanfire> lol
+14:24 <+Shentino> When's the next trustee election again?
+14:25 <@prometheanfire> june/july
+14:31 <+robbat2> K_F: if you could find time to review those in-progress financial statements, esp with light to disclaimers other notes on them, I would like to get them committed 
+to a  publically visible repo, and linked on the nfp list
+14:33 <+Shentino> I really hope we have more candidates
+14:38 <+dwfreed> it isn't
+14:38 <+dwfreed> erm, whoops
+14:38 <+dwfreed> was scrolled up
+14:47 <+robbat2> Why do so many Americans keep thinking their rights to Free Speech are so all-encompassing, despite strong law to the contrary?
+14:49  * prometheanfire shrugs
+14:49 <@prometheanfire> robbat2: see my reploy
+14:49 <@prometheanfire> reply
+14:49 <+antarus> I think my comment would be
+14:49 <+antarus> "don't mistake his behavior for all Americans?"
+14:49 <+robbat2> reply where? I don't see one on the bug
+14:49 <+antarus> the -nfp list
+14:49 <+robbat2> is there mailing list traffic I haven't gotten to yet
+14:49 <+robbat2> ah
+14:50 <+robbat2> antarus: ok, I'll apologize: why do a very vocal fraction of Americans
+14:50 <+antarus> ;)
+14:50 <@prometheanfire> because everyone has a very vocal minority that makes the majority look more stupid
+14:51 <+antarus> https://en.wikipedia.org/wiki/Rhinoceros_Party
+14:51 < trustee-meetbot> [WIKIPEDIA] Rhinoceros Party | "The Rhinoceros Party (French: Parti Rhinocéros) is a Canadian federal-level satirical political party, referred to in English 
+Canada 
+                         as the Second Rhinoceros Party. It was known as neorhino.ca until 2010, when the party changed names and registered a new party logo. It was created in 
+Montreal on 
+                         May..."
+14:51 <+antarus> I'll just leave that there, Canadians
+14:51 <+antarus> ^_^
+14:53 <+NeddySeagoon> antarus: We have the Monster Raving Loony Party  https://www.omrlp.com/
+14:54 <@prometheanfire> https://www.wikiwand.com/en/Party!_Party!_Party!
+14:59 <+rich0> robbat2: if it makes you feel better it seems like we're exporting the craziness.  I saw a video clip of a dutch sovereign citizen in a hearing...
+15:02 <+rich0> I suspect a part of the problem in the US at least is that with rare exceptions most teachers are people who couldn't get a job doing anything else.
+15:02 <@prometheanfire> how'd this pivot to teachers?
+15:03 <+rich0> prometheanfire: my answer to his questions - why do so many americans keep thinking...
+15:03 <+rich0> They're taught by people who aren't very good at thinking to begin with...
+15:03 <@prometheanfire> I wouldn't blame teachers for that
+15:03 <+rich0> They're not the whole answer for sure
+15:03 <@prometheanfire> I'm not sure you realize how much their hands are tied as to how they can interact with students
+15:04 <+rich0> prometheanfire: sure, and that is part of why nobody wants to do the job.  :)
+15:04 <@prometheanfire> yep
+15:04 <+rich0> There is also a culture of wishful thinking.
+15:04 <+rich0> I want X to be so and so I'll pretend X is so.
+15:04 <+rich0> I think that is more of a western thing than a US thing though
+15:05 <+rich0> Some of it is even a liberal/progressive thing
+15:05 <+rich0> We aspire to make the world better/etc.
+15:05 <@prometheanfire> willful denial of reality is not a western thing, it's a human thing
+15:05 <+rich0> I realize the two don't have to go together/etc.
+15:05 <+rich0> Probably, though it seems like it would be an evolutionary disadvantage.
+15:06 <+rich0> That tends to make me wonder why it would be a human thing.  Then again, religion/etc is definitely a human thing.
+15:06 <@prometheanfire> dunno, I think it may allow us to make !reality into reality in some situations
+15:06 <+rich0> But, historically I don't think religion tended to be wishful thinking.
+15:06 <+robbat2> it's more the second part of the statement that makes me wonder
+15:07 <+robbat2> the first amendment even in itself is overridden by many other laws
+15:07 <+rich0> I suspect historically it was more of a way to explain things in the absence of better explanations.
+15:07 <+robbat2> because it only applies by definition to governments
+15:07 <+rich0> robbat2: more or less
+15:07 <+robbat2> sure, some state constituions grant slightly broader rights, but again those restrict some level of government
+15:07 <+rich0> Any kind of "absolute" right tends to be problematic, so just about any kind of bill of rights has caveats.
+15:08 <@prometheanfire> in any case, private business (which we are) means those rights don't necessarilly exist
+15:08 <+robbat2> contract law (agreeing to the CoC) to use private online fora can restrict your speech, legally
+15:08 <+rich0> I think the first amendment has been applied to some private businesses, but it tends to be limited
+
